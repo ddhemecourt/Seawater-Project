@@ -13,6 +13,9 @@ using NationalInstruments.NI4882;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
+using System.Collections;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Runtime.InteropServices;
 
 
 namespace Seawater_Measurement
@@ -29,6 +32,8 @@ namespace Seawater_Measurement
         public const uint ES_CONTINUOUS = 0x80000000;
 
         public const uint ES_SYSTEM_REQUIRED = 0x00000001;
+
+        public const uint ES_DISPLAY_REQUIRED = 0x00000002;
 
 
         //Declare network analyzer and digital multimeter
@@ -168,21 +173,14 @@ namespace Seawater_Measurement
         {
             InitializeComponent();
 
-            SetThreadExecutionState(
+          //  SetThreadExecutionState(
 
-             ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+         //    ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
 
 
 
             DMM.Write("func 'RES';");
-            Workbook = new excel_doc();
-            Workbook.addData(3, 1, "Cavity Temp:", "raw_data");
-            Workbook.addData(4, 1, "Room Temp:", "raw_data");
-            Workbook.addData(5, 1, "NA Calc Center:", "raw_data");
-            Workbook.addData(6, 1, "NA Calc BW:", "raw_data");
-            Workbook.addData(7, 1, "NA Calc IL:", "raw_data");
-            Workbook.addData(8, 1, "NA Calc Q:", "raw_data");
-            Workbook.addData(9, 1, "Data Set:", "raw_data");
+
             dataCol = 2;
             //   NA.IOTimeout = 10000;
             // Timeout.Infinite();
@@ -456,9 +454,9 @@ namespace Seawater_Measurement
         private void StopMeas_Click(object sender, EventArgs e)
         {
             timer1.Enabled = false;
-            Workbook.app.Visible = true;
+          //  Workbook.app.Visible = true;
             string path = string.Format("{0}{1}.xls", pathname.Text, filename.Text);
-            Workbook.workbook.SaveAs(path);
+            Workbook.workbook.Save();
             dataCnt = 0;
             tempCnt = 0;
             
@@ -478,6 +476,18 @@ namespace Seawater_Measurement
 
             if (ExpLastName.Text != "" && Temp.Text != "" && Substance.Text != "" && TubeNumber.Text != "" && filename.Text != "")
             {
+                Workbook = new excel_doc();
+                Workbook.createDoc();
+               // Workbook.app.ScreenUpdating = false;
+                Workbook.addData(3, 1, "Cavity Temp:", "raw_data");
+                Workbook.addData(4, 1, "Room Temp:", "raw_data");
+                Workbook.addData(5, 1, "NA Calc Center:", "raw_data");
+                Workbook.addData(6, 1, "NA Calc BW:", "raw_data");
+                Workbook.addData(7, 1, "NA Calc IL:", "raw_data");
+                Workbook.addData(8, 1, "NA Calc Q:", "raw_data");
+                Workbook.addData(9, 1, "Data Set:", "raw_data");
+                string path = string.Format("{0}{1}.xlsx", pathname.Text, filename.Text);
+                Workbook.workbook.SaveAs(path);
 
                 start = DateTime.Now;
                 startMeasurment();
@@ -759,13 +769,15 @@ namespace Seawater_Measurement
                         }
                         else
                         {
-                            Workbook.addData(j + 10, dataCol, Convert.ToString(value), "raw_data");
+                            Workbook.addData(j/2 + 10, dataCol, Convert.ToString(value), "raw_data");
                         }
                     }
                     catch
                     {
                         continue;
                     }
+
+                   // Workbook.addData(j + 10, dataCol, Convert.ToString(data[j]), "raw_data");
 
 
                 }

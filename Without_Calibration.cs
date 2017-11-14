@@ -34,6 +34,8 @@ namespace Seawater_Measurement
 
         public const uint ES_SYSTEM_REQUIRED = 0x00000001;
 
+        public const uint ES_DISPLAY_REQUIRED = 0x00000002;
+
         //Declare network analyzer and digital multimeter
         Device NA = new Device(0, 6, 0);
         Device DMM = new Device(0,16,0);
@@ -49,6 +51,8 @@ namespace Seawater_Measurement
 
 
         double totalDataCount;
+
+        string inputPower;
 
         //Variables that control the temperature measurement cycle
         int tempCnt;
@@ -154,7 +158,7 @@ namespace Seawater_Measurement
 
             SetThreadExecutionState(
 
-               ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+               ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
 
             Q_L = null;
             Q_UL = null;
@@ -164,7 +168,6 @@ namespace Seawater_Measurement
             StopMeas.Enabled = false;
            // matlabDataAnalysis.Enabled = false;
 
-            DwnldRawData.Checked = true;
 
             // The following coefficients are for temperature greater or equal to
             // 0.0 degrees Celsius to +70.0 degrees Celsius
@@ -176,10 +179,15 @@ namespace Seawater_Measurement
             D1 = 333322464108.355;
 
             //Coefficients for Thermistor 2
-            A2 = -0.684733865;
-            B2 = 2037.96368;
-            C2 = 119583683;
-            D2 = -3436270130000;
+            //A2 = -0.684733265;
+            //B2 = 2037.96368;
+            //C2 = 119583683;
+            //D2 = -3436270130000;
+            A2 = -0.876691731;
+            B2 = 2127.96669;
+            C2 = 115904092;
+            D2 = -3350113390000;
+
             //Coefficients for Thermistor 3
             A3 = -5.19939086186174;
             B3 = 4539.48650452823;
@@ -196,10 +204,14 @@ namespace Seawater_Measurement
             D11 = 38930303174.3173;
 
             //Coefficients for Thermistor 2
-            A22 = -0.684733865;
-            B22 = 2037.96368;
-            C22 = 119583683;
-            D22 = -3436270130000;
+            //A22 = -0.684733265;
+            //B22 = 2037.96368;
+            //C22 = 119583683;
+            //D22 = -3436270130000;
+            A22 = -0.876691731;
+            B22 = 2127.96669;
+            C22 = 115904092;
+            D22 = -3350113390000;
             //Coefficients for Thermistor 3
             A33 = -4.95555668301354;
             B33 = 4402.9360100307;
@@ -448,7 +460,6 @@ namespace Seawater_Measurement
             }
 
 
-            //MLApp.MLApp matlab = new MLApp.MLApp();
             var activationContext = Type.GetTypeFromProgID("matlab.application.single");
             var matlab = (MLApp.MLApp)Activator.CreateInstance(activationContext);
             Status.Text = "Running Matlab SVD. Do Not Modify Excel File";
@@ -505,6 +516,9 @@ namespace Seawater_Measurement
             Workbook.addData(11, 2, ExpDate.Text, "gen_info");
             Workbook.addData(13, 1, "Tube Number:", "gen_info");
             Workbook.addData(13, 2, TubeNumber.Text, "gen_info");
+            
+
+
 
             Workbook.general_info.Rows.AutoFit();
             Workbook.general_info.Columns.AutoFit();
@@ -532,6 +546,7 @@ namespace Seawater_Measurement
 
                 Workbook = new excel_doc();
                 Workbook.createDoc();
+                Workbook.app.ScreenUpdating = false;
                 addGeneralInfo();
                 Workbook.addData(2, 1, "Time:", "raw_data");
                 Workbook.addData(3, 1, "Cavity Temp:", "raw_data");
@@ -557,6 +572,13 @@ namespace Seawater_Measurement
                 Workbook.addData(5, 2, numberOfPoints, "gen_info");
                 Workbook.addData(7, 1, "IF Bandwidth:", "gen_info");
                 Workbook.addData(7, 2, IFBW, "gen_info");
+
+                Workbook.addData(15, 1, "Input Power (dB):", "gen_info");
+                NA.Write("PWR?;");
+                inputPower = NA.ReadString();
+                Workbook.addData(15, 2, inputPower, "gen_info");
+                inputPowerLabel.Text = inputPower;
+                inputPowerLabel.Refresh();
 
 
 
@@ -592,73 +614,51 @@ namespace Seawater_Measurement
         {
             fnc_count = 250;
 
-
-
-            //Network Analyzer Initialization
-
-            //Put into single sweep (hold) mode
-            //NA.Write("CTN;");
-            
-            //NA.Write(":ABOR;");
-            //NA.Write(":TRIG:SOUR MAN;");
-            //NA.Write(":INIT;");
-            //NA.Write(":TRIG:SING;");
-
-            //Averaging
-
-            //string AverageFactor = "PTAVG;RSTAVG;AVG " + AvgFactor.Text +";";
             NA.Write("SWAVG;");
             NA.Write("RSTAVG;");
             NA.Write("AVG "+AvgFactor.Text+" XX1;");
 
 
-            //NA.Write(AverageFactor);
-            //string IFBandw = "IFBW" + IFBWtxt.Text + ";";
-            //NA.Write(IFBandw);
-            //Console.WriteLine(AverageFactor + IFBandw);
-            //NA.Write(AverageFactor + IFBandw);
 
             NA.Write("IFBWX?;");
             string test = NA.ReadString(ARRAYSIZE);
             Console.WriteLine(test);
 
 
-            //NA.Write("FMA;FMT0;AOF;");
             NA.Write("FMA;");
             NA.Write("FMT0;");
             NA.Write("AOF;");
             NA.Write("AON;");
 
 
-
-            //   NA.Write("FMA;FMT0;AON;");
             DMM.Write("*RST;");
-    
-            //DMM Initialization
-            //DMM.Write("SYST:BEEP 0");
-           // DMM.Write("*rst");
-            //DMM.Write("FORM:DATA ASCII");
-
-
-            //DMM.Write("INST:SEL P6V;");
-            //DMM.Write("VOLT:TRIG 3;");
-            //DMM.Write("INST:SEL P25V;");
-            //DMM.Write("VOLT:TRIG 3;");
-            //DMM.Write("OUTP ON;");
-            //DMM.Write("INIT;");
-            //DMM.Write("*TRG;");
-
+   
             cnt = 1;
             tempRow = 2;
 
             NA.Write("SRT?;*WAI;");
             start_freq = NA.ReadString();
+            Workbook.addData(17, 1, "Start Frequency:", "gen_info");
+            Workbook.addData(17, 2, start_freq, "gen_info");
+
             NA.Write("STP?;*WAI;");
             stop_freq = NA.ReadString();
+            Workbook.addData(19, 1, "Stop Frequency:", "gen_info");
+            Workbook.addData(19, 2, stop_freq, "gen_info");
+
             NA.Write("SPAN?;*WAI;");
             span = NA.ReadString();
-            Console.WriteLine(span);
-            // microwaveSetupData();
+            Workbook.addData(21, 1, "Frequency Span:", "gen_info");
+            Workbook.addData(21, 2, span, "gen_info");
+
+            NA.Write("P1P?;*WAI;");
+            string avgP1 = NA.ReadString();
+            Workbook.addData(23, 1, "Average P1 Power:", "gen_info");
+            Workbook.addData(23, 2, avgP1, "gen_info");
+
+
+
+
             measure();
         }
 
@@ -716,7 +716,7 @@ namespace Seawater_Measurement
         {
             
            // Thread.Sleep(500);
-
+           // Setup NA for measurment & call a full sweep command 
             NA.IOTimeout = TimeoutValue.T1000s;
 
             NA.Write("S21;");
@@ -729,9 +729,8 @@ namespace Seawater_Measurement
             NA.Write("WFS;");
 
             
+            //Add to Raw Data file
 
-            if (DwnldRawData.Checked == true)
-            {
                 Console.WriteLine("HERE");
                 Stopwatch time = Stopwatch.StartNew();
                 NA.Write("DPR0;OFD;");
@@ -823,7 +822,7 @@ namespace Seawater_Measurement
 
 
 
-            }
+            
 
             Status.Text = "Recording Data and Measuring Temperature";
 
@@ -844,7 +843,6 @@ namespace Seawater_Measurement
             string[] c = centerFreq.Split('E');
             magnitude = Convert.ToDouble(c[0]);
             power = Convert.ToDouble(c[1]);
-            //val = magnitude * Math.Pow(10, power);
             val = magnitude;
             centerFreq = Convert.ToString(val);
 
@@ -942,6 +940,7 @@ namespace Seawater_Measurement
             fnc_res3 = Math.Log(meas_res3);
 
             //calculate temp values for the three thermistors
+
             //double t1 = SOLVE_1(fnc_res1,323.15,263.15,0.00000005);
             //t1 = Math.Round((t1-273.15),4);
             //temp1 = Convert.ToString(t1);
@@ -989,7 +988,7 @@ namespace Seawater_Measurement
             string path = pathname.Text;
             string excel_file = pathname.Text + filename.Text + ".xlsx";
 
-            // Change to the directory where the function is located 
+            // Change to the directory where the MATLAB function is located 
             matlab.Execute(@path);
             matlab.PutWorkspaceData("data_file", "base", excel_file);
             matlab.PutWorkspaceData("start", "base", start);
@@ -997,9 +996,12 @@ namespace Seawater_Measurement
             matlab.PutWorkspaceData("span", "base", bw);
             matlab.PutWorkspaceData("range", "base", range);
 
+            //Run the SVD curve fitting method
             Console.WriteLine(matlab.Execute("[Q_L,Q_UL,f_center,s21] = original_expression_SVD(data_file,start,stop,span,range)"));
             Thread.Sleep(3000);
 
+
+            //Obtain the returned values from the workspace
             Q_L = getQ(matlab)[0];
             Q_UL = getQ(matlab)[1];
             f_center = getQ(matlab)[2];
@@ -1007,6 +1009,8 @@ namespace Seawater_Measurement
 
         }
 
+
+        
         public object[] getQ(MLApp.MLApp matlab)
         {
             object qUL;
@@ -1033,486 +1037,6 @@ namespace Seawater_Measurement
             MLDataAnalysis ml = new MLDataAnalysis(excel_file,path,resultFile);
             ml.Show();
 
-
-
-
-        //    excel_doc doc = new excel_doc();
-
-        //    Excel.Application excel = new Excel.Application();
-        //    Excel.Workbooks books = excel.Workbooks;
-        //    Excel.Workbook wb = books.Open(Filename:@"C:\\Users\\ddhemecourt\\Desktop\\Seawater_Files\\Methanol_20C_Q34_1.xlsx",ReadOnly:false);
-
-        //    var activationContext = Type.GetTypeFromProgID("matlab.application.single");
-        //    var matlab = (MLApp.MLApp)Activator.CreateInstance(activationContext);
-
-
-
-        //    j = 1;
-        //    //while (Workbook.Q_L.Cells[j, 2].Value2 != null)
-        //    //{
-        //    //    j++;
-        //    //}
-        //    //string rangeFirst = Workbook.CellAddress(1, 2);
-        //    //string rangeSecond = Workbook.CellAddress(j, 2);
-        //    //string range = rangeFirst + ":" + rangeSecond;
-
-        //    string excel_file = "C:\\Users\\ddhemecourt\\Desktop\\Seawater_Files\\Methanol_20C_Q34_1.xlsx";
-        //    string range = "B1:B45";
-        //    double num_avg = Convert.ToDouble(number_avg.Text);
-
-
-        //    matlab.Execute(@path);
-        //    matlab.PutWorkspaceData("file", "base", excel_file);
-        //    matlab.PutWorkspaceData("range", "base", range);
-        //    matlab.PutWorkspaceData("Q_Unloaded_Sheet", "base", "Unloaded Q");
-        //    matlab.PutWorkspaceData("Q_Loaded_Sheet", "base", "Loaded Q");
-        //    matlab.PutWorkspaceData("NA_Q_Sheet", "base", "Q vs. Time");
-        //    matlab.PutWorkspaceData("NA_Center_Sheet", "base", "Center Freq.");
-        //    matlab.PutWorkspaceData("SVD_Center_Sheet", "base", "SVD Center Frequency");
-        //    matlab.PutWorkspaceData("num_avg", "base", num_avg);
-
-        //    Console.WriteLine(matlab.Execute("[manual_means,manual_stdevs,auto_means,auto_stdevs,sections,indices,a] = q_analysis(file,range,Q_Loaded_Sheet,num_avg)"));
-
-        //    object sections = getMLData(matlab)[4];
-        //    int sectionNum = Convert.ToInt16(sections);
-
-        //    doc.createAnalysisDoc(sectionNum, Convert.ToInt16(num_avg));
-
-
-        //    string[] worksheets = new string[6] { "Loaded Q", "Unloaded Q", "Q vs. Time", "Center Freq.", "Room Temp.", "Cavity Temp." };
-
-        //    foreach (string sheet in worksheets)
-        //    {
-        //        Console.WriteLine(sheet);
-        //        Excel.Worksheet worksheet = wb.Sheets[sheet];
-        //        Excel.ChartObjects charObjects = (Excel.ChartObjects)worksheet.ChartObjects(Type.Missing);
-        //        Excel.ChartObject chart = (Excel.ChartObject)charObjects.Item(1);
-        //        Excel.Chart myChart = chart.Chart;
-        //        Excel.Series series = myChart.SeriesCollection(1);
-        //        series.MarkerBackgroundColor = (int)Excel.XlRgbColor.rgbBlue;
-        //        series.MarkerForegroundColor = (int)Excel.XlRgbColor.rgbBlue;
-        //    }
-
-
-
-
-
-
-        //    object indices = getMLData(matlab)[5];
-        //    IEnumerable enumerable = indices as IEnumerable;
-
-        //    if (enumerable != null)
-        //    {
-        //        int i = 1;
-        //        j = 1;
-        //        int v = 0;
-        //        int level = 0;
-        //        int sample_count = Convert.ToUInt16(num_avg);
-
-        //        List<double> qLoadedAvg = new List<double>();
-        //        List<double> qUnloadedAvg = new List<double>();
-        //        List<double> qNAAvg = new List<double>();
-        //        List<double> resFreqNAAvg = new List<double>();
-        //        List<double> resFreqSVDAvg = new List<double>();
-        //        List<double> roomTAvg = new List<double>();
-        //        List<double> cavityTAvg = new List<double>();
-
-        //        foreach (object element in enumerable)
-        //        {
-             
-        //            level = Convert.ToUInt16((num_avg * 2 + 12) * (i - 1));
-
-        //            int index = Convert.ToUInt16(element);
-        //            Excel.Worksheet ws = wb.Sheets["Loaded Q"];
-        //            Console.WriteLine(ws.Cells[element, 1].text);
-        //            string value = Convert.ToString(ws.Cells[element, 1].text);
-        //            doc.addData(level + 10 + sample_count + v, 2, value, "analysis");
-
-        //            Excel.ChartObjects charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            Excel.ChartObject chart = (Excel.ChartObject)charObjects.Item(1);
-        //            Excel.Chart myChart = chart.Chart;
-        //            Excel.Series series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 10 + sample_count + v, 3, value, "analysis");
-        //            qLoadedAvg.Add(Convert.ToDouble(value));
-
-        //            ws = wb.Sheets["Unloaded Q"];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 10 + sample_count + v, 4, value, "analysis");
-        //            qUnloadedAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-        //            ws = wb.Sheets["Q vs. Time"];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 10 + sample_count + v, 5, value, "analysis");
-        //            qNAAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-
-        //            ws = wb.Sheets["Center Freq."];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 10 + sample_count + v, 6, value, "analysis");
-        //            resFreqNAAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-
-
-        //            //ws = wb.Sheets["SVD Center Frequency"];
-        //            //value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            //doc.addData(level + 10 + sample_count + v, 7, value, "analysis");
-        //            //resFreqSVDAvg.Add(Convert.ToDouble(value));
-
-        //            //charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            //chart = (Excel.ChartObject)charObjects.Item(1);
-        //            //myChart = chart.Chart;
-        //            ////series = myChart.SeriesCollection(1);
-        //            //series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            //series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-
-
-        //            ws = wb.Sheets["Room Temp."];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 10 + sample_count + v, 8, value, "analysis");
-        //            roomTAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-        //            ws = wb.Sheets["Cavity Temp."];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 10 + sample_count + v, 9, value, "analysis");
-        //            cavityTAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
-
-
-        //            v++;
-        //            j++;
-
-        //            if (j % (num_avg + 1) == 0 || j == 2 * (num_avg) + 1)
-        //            {
-
-        //                double avg = qLoadedAvg.Sum() / num_avg;
-        //                double sd = qLoadedAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / qLoadedAvg.Count);
-        //                Console.WriteLine("AVG = " + Convert.ToString(avg));
-        //                doc.addData(level + 10 + (2 * sample_count), 3, Convert.ToString(avg), "analysis");
-        //                doc.addData(level + 11 + (2 * sample_count), 3, Convert.ToString(sd), "analysis");
-        //                qLoadedAvg.Clear();
-
-        //                avg = qUnloadedAvg.Sum() / num_avg;
-        //                sd = qUnloadedAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / qUnloadedAvg.Count);
-        //                doc.addData(level + 10 + (2 * sample_count), 4, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 11 + (2 * sample_count), 4, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                qUnloadedAvg.Clear();
-
-        //                avg = qNAAvg.Sum() / num_avg;
-        //                sd = qNAAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / qNAAvg.Count);
-        //                doc.addData(level + 10 + (2 * sample_count), 5, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 11 + (2 * sample_count), 5, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                qNAAvg.Clear();
-
-        //                avg = resFreqNAAvg.Sum() / num_avg;
-        //                sd = resFreqNAAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / resFreqNAAvg.Count);
-        //                doc.addData(level + 10 + (2 * sample_count), 6, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 11 + (2 * sample_count), 6, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                resFreqNAAvg.Clear();
-
-        //                //avg = resFreqSVDAvg.Sum() / num_avg;
-        //                //sd = resFreqSVDAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                //sd = Math.Sqrt(sd / resFreqSVDAvg.Count);
-        //                //doc.addData(level + 10 + (2 * sample_count), 7, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                //doc.addData(level + 11 + (2 * sample_count), 7, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                //resFreqSVDAvg.Clear();
-
-        //                avg = roomTAvg.Sum() / num_avg;
-        //                sd = roomTAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / roomTAvg.Count);
-        //                doc.addData(level + 10 + (2 * sample_count), 8, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 11 + (2 * sample_count), 8, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                roomTAvg.Clear();
-
-
-        //                avg = cavityTAvg.Sum() / num_avg;
-        //                sd = cavityTAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / cavityTAvg.Count);
-        //                doc.addData(level + 10 + (2 * sample_count), 9, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 11 + (2 * sample_count), 9, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                cavityTAvg.Clear();
-
-
-        //                i++;
-        //                v = 0;
-        //            }
-
-        //        }
-        //    }
-
-
-
-
-
-
-        //    object a = getMLData(matlab)[6];
-        //    enumerable = a as IEnumerable;
-
-        //    if (enumerable != null)
-        //    {
-        //        int i = 1;
-        //        j = 1;
-        //        int v = 0;
-        //        int level = 0;
-
-        //        List<double> qLoadedAvg = new List<double>();
-        //        List<double> qUnloadedAvg = new List<double>();
-        //        List<double> qNAAvg = new List<double>();
-        //        List<double> resFreqNAAvg = new List<double>();
-        //        List<double> resFreqSVDAvg = new List<double>();
-        //        List<double> roomTAvg = new List<double>();
-        //        List<double> cavityTAvg = new List<double>();
-
-        //        foreach (object element in enumerable)
-        //        {
-                    
-
-        //            int sample_count = Convert.ToUInt16(num_avg);
-        //            level = Convert.ToUInt16((num_avg*2+12) * (i - 1));
-
-        //            int index = Convert.ToUInt16(element);
-        //            Excel.Worksheet ws = wb.Sheets["Loaded Q"];
-        //            Console.WriteLine(ws.Cells[element, 1].text);
-        //            string value = Convert.ToString(ws.Cells[element, 1].text);
-        //            doc.addData(level + 5 + v, 2, value, "analysis");
-
-        //            Excel.ChartObjects charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            Excel.ChartObject chart = (Excel.ChartObject)charObjects.Item(1);
-        //            Excel.Chart myChart = chart.Chart;
-        //            Excel.Series series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 5 + v, 3, value, "analysis");
-        //            qLoadedAvg.Add(Convert.ToDouble(value));
-
-        //            ws = wb.Sheets["Unloaded Q"];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 5 + v, 4, value, "analysis");
-        //            qUnloadedAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-
-        //            ws = wb.Sheets["Q vs. Time"];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 5 + v, 5, value, "analysis");
-        //            qNAAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-
-        //            ws = wb.Sheets["Center Freq."];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 5 + v, 6, value, "analysis");
-        //            resFreqNAAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-
-        //            //UNCOMMENT THIS WHEN WE HAVE THIS SHEET*******
-        //            //ws = wb.Sheets["SVD Center Frequency"];
-        //            //value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            //doc.addData(level + 5 + v, 7, value, "analysis");
-        //            //resFreqSVDAvg.Add(Convert.ToDouble(value));
-
-        //            //charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            //chart = (Excel.ChartObject)charObjects.Item(1);
-        //            //myChart = chart.Chart;
-        //            //series = myChart.SeriesCollection(1);
-        //            //series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            //series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-
-        //            ws = wb.Sheets["Room Temp."];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 5 + v, 8, value, "analysis");
-        //            roomTAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-
-        //            ws = wb.Sheets["Cavity Temp."];
-        //            value = Convert.ToString(ws.Cells[element, 2].Value2);
-        //            doc.addData(level + 5 + v, 9, value, "analysis");
-        //            cavityTAvg.Add(Convert.ToDouble(value));
-
-        //            charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-        //            chart = (Excel.ChartObject)charObjects.Item(1);
-        //            myChart = chart.Chart;
-        //            series = myChart.SeriesCollection(1);
-        //            series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-        //            series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-
-        //            v++;
-        //            j++;
-
-        //            if (j % (num_avg + 1) == 0 || j == (2 * (num_avg)+1))
-        //            {
-        //                double avg = qLoadedAvg.Sum() / num_avg;
-        //                double sd = qLoadedAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / qLoadedAvg.Count);
-        //                Console.WriteLine("AVG = " + Convert.ToString(avg));
-        //                doc.addData(level + 5 + sample_count, 3, Convert.ToString(avg), "analysis");
-        //                doc.addData(level + 6 + sample_count, 3, Convert.ToString(sd), "analysis");
-        //                qLoadedAvg.Clear();
-
-        //                avg = qUnloadedAvg.Sum() / num_avg;
-        //                sd = qUnloadedAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / qUnloadedAvg.Count);
-        //                doc.addData(level + 5 + sample_count, 4, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 6 + sample_count, 4, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                qUnloadedAvg.Clear();
-
-        //                avg = qNAAvg.Sum() / num_avg;
-        //                sd = qNAAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / qNAAvg.Count);
-        //                doc.addData(level + 5 + sample_count, 5, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 6 + sample_count, 5, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                qNAAvg.Clear();
-
-        //                avg = resFreqNAAvg.Sum() / num_avg;
-        //                sd = resFreqNAAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / resFreqNAAvg.Count);
-        //                doc.addData(level + 5 + sample_count, 6, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 6 + sample_count, 6, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                resFreqNAAvg.Clear();
-
-        //                //avg = resFreqSVDAvg.Sum() / num_avg;
-        //                //sd = resFreqSVDAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                //sd = Math.Sqrt(sd / resFreqSVDAvg.Count);
-        //                //doc.addData(level + 5 + sample_count, 7, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                //doc.addData(level + 6 + sample_count, 7, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                //resFreqSVDAvg.Clear();
-
-        //                avg = roomTAvg.Sum() / num_avg;
-        //                sd = roomTAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / roomTAvg.Count);
-        //                doc.addData(level + 5 + sample_count, 8, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 6 + sample_count, 8, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                roomTAvg.Clear();
-
-        //                avg = cavityTAvg.Sum() / num_avg;
-        //                sd = cavityTAvg.Select(x => (x - avg) * (x - avg)).Sum();
-        //                sd = Math.Sqrt(sd / cavityTAvg.Count);
-        //                doc.addData(level + 5 + sample_count, 9, Convert.ToString(Convert.ToString(avg)), "analysis");
-        //                doc.addData(level + 6 + sample_count, 9, Convert.ToString(Convert.ToString(sd)), "analysis");
-        //                cavityTAvg.Clear();
-
-        //                i++;
-        //                v = 0;
-        //            }
-
-
-        //        }
-        //    }
-
-
-        //    Excel.Range workSheet_range = doc.Analysis.Range[doc.Analysis.Cells[1, 1], doc.Analysis.Cells[10000, 20]];
-        //    workSheet_range.Columns.AutoFit();
-
-        //    wb.Save();
-        //    wb.Close();
-        //    excel.Quit();
-        //    Marshal.FinalReleaseComObject(excel);
-        //    Marshal.FinalReleaseComObject(books);
-        //    Marshal.FinalReleaseComObject(wb);
-            
-            
-            
-
-
         }
-
-        //public object[] getMLData(MLApp.MLApp matlab)
-        //{
-        //    object manual_means;
-        //    object manual_stdevs;
-        //    object auto_means;
-        //    object auto_stdevs;
-        //    object sections;
-        //    object indices;
-        //    object a;
-
-        //    matlab.GetWorkspaceData("manual_means", "base", out manual_means);
-        //    matlab.GetWorkspaceData("manual_stdevs", "base", out manual_stdevs);
-        //    matlab.GetWorkspaceData("auto_means", "base", out auto_means);
-        //    matlab.GetWorkspaceData("auto_stdevs", "base", out auto_stdevs);
-        //    matlab.GetWorkspaceData("sections", "base", out sections);
-        //    matlab.GetWorkspaceData("indices", "base", out indices);
-        //    matlab.GetWorkspaceData("a", "base", out a);
-
-        //    object[] result = { manual_means, manual_stdevs, auto_means, auto_stdevs, sections, indices, a };
-        //    return result;
-
-        //}
-
-
-
-
     }
 }

@@ -37,7 +37,6 @@
             this.AvgFactor = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.InputPower = new System.Windows.Forms.TextBox();
             this.TubeNumber = new System.Windows.Forms.TextBox();
             this.ExpDate = new System.Windows.Forms.TextBox();
             this.ExpLastName = new System.Windows.Forms.TextBox();
@@ -49,7 +48,6 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label10 = new System.Windows.Forms.Label();
             this.pressure_txt = new System.Windows.Forms.Label();
-            this.DwnldRawData = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.NA_ILTXT = new System.Windows.Forms.Label();
             this.NA_QValTXT = new System.Windows.Forms.Label();
@@ -77,8 +75,7 @@
             this.dataCountTotal = new System.Windows.Forms.Label();
             this.Status = new System.Windows.Forms.Label();
             this.matlabDataAnalysis = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
-            this.number_avg = new System.Windows.Forms.TextBox();
+            this.inputPowerLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -88,6 +85,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.inputPowerLabel);
             this.groupBox1.Controls.Add(this.IFtxt);
             this.groupBox1.Controls.Add(this.numPoints);
             this.groupBox1.Controls.Add(this.label21);
@@ -95,7 +93,6 @@
             this.groupBox1.Controls.Add(this.AvgFactor);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.InputPower);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(417, 192);
@@ -170,14 +167,6 @@
             this.label2.Size = new System.Drawing.Size(122, 20);
             this.label2.TabIndex = 2;
             this.label2.Text = "Average Factor:";
-            // 
-            // InputPower
-            // 
-            this.InputPower.Location = new System.Drawing.Point(238, 146);
-            this.InputPower.Name = "InputPower";
-            this.InputPower.Size = new System.Drawing.Size(155, 20);
-            this.InputPower.TabIndex = 17;
-            this.InputPower.Text = "-5";
             // 
             // TubeNumber
             // 
@@ -261,7 +250,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(438, 428);
+            this.label10.Location = new System.Drawing.Point(438, 434);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(261, 20);
             this.label10.TabIndex = 2;
@@ -276,17 +265,6 @@
             this.pressure_txt.Size = new System.Drawing.Size(14, 20);
             this.pressure_txt.TabIndex = 5;
             this.pressure_txt.Text = "-";
-            // 
-            // DwnldRawData
-            // 
-            this.DwnldRawData.AutoSize = true;
-            this.DwnldRawData.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DwnldRawData.Location = new System.Drawing.Point(95, 34);
-            this.DwnldRawData.Name = "DwnldRawData";
-            this.DwnldRawData.Size = new System.Drawing.Size(191, 24);
-            this.DwnldRawData.TabIndex = 7;
-            this.DwnldRawData.Text = "Download Raw Data";
-            this.DwnldRawData.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
@@ -467,7 +445,6 @@
             this.groupBox4.Controls.Add(this.filename);
             this.groupBox4.Controls.Add(this.label11);
             this.groupBox4.Controls.Add(this.pathname);
-            this.groupBox4.Controls.Add(this.DwnldRawData);
             this.groupBox4.Location = new System.Drawing.Point(12, 422);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(417, 161);
@@ -479,7 +456,7 @@
             // 
             this.label20.AutoSize = true;
             this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(6, 119);
+            this.label20.Location = new System.Drawing.Point(6, 104);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(78, 20);
             this.label20.TabIndex = 11;
@@ -488,7 +465,7 @@
             // filename
             // 
             this.filename.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.filename.Location = new System.Drawing.Point(92, 119);
+            this.filename.Location = new System.Drawing.Point(92, 104);
             this.filename.Name = "filename";
             this.filename.Size = new System.Drawing.Size(313, 26);
             this.filename.TabIndex = 10;
@@ -497,7 +474,7 @@
             // 
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(6, 75);
+            this.label11.Location = new System.Drawing.Point(6, 47);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(86, 20);
             this.label11.TabIndex = 9;
@@ -506,11 +483,11 @@
             // pathname
             // 
             this.pathname.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.pathname.Location = new System.Drawing.Point(92, 71);
+            this.pathname.Location = new System.Drawing.Point(92, 43);
             this.pathname.Name = "pathname";
             this.pathname.Size = new System.Drawing.Size(313, 26);
             this.pathname.TabIndex = 8;
-            this.pathname.Text = "C:\\Users\\ddhemecourt\\Desktop\\Seawater_Files\\";
+            this.pathname.Text = "C:\\Users\\admin\\Desktop\\Seawater_Files\\";
             // 
             // Substance
             // 
@@ -540,7 +517,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(438, 459);
+            this.label1.Location = new System.Drawing.Point(438, 481);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 20);
             this.label1.TabIndex = 25;
@@ -550,7 +527,7 @@
             // 
             this.dataCountTotal.AutoSize = true;
             this.dataCountTotal.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dataCountTotal.Location = new System.Drawing.Point(731, 428);
+            this.dataCountTotal.Location = new System.Drawing.Point(731, 434);
             this.dataCountTotal.Name = "dataCountTotal";
             this.dataCountTotal.Size = new System.Drawing.Size(19, 20);
             this.dataCountTotal.TabIndex = 26;
@@ -560,7 +537,7 @@
             // 
             this.Status.AutoSize = true;
             this.Status.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Status.Location = new System.Drawing.Point(511, 459);
+            this.Status.Location = new System.Drawing.Point(511, 481);
             this.Status.Name = "Status";
             this.Status.Size = new System.Drawing.Size(266, 20);
             this.Status.TabIndex = 27;
@@ -577,31 +554,21 @@
             this.matlabDataAnalysis.UseVisualStyleBackColor = true;
             this.matlabDataAnalysis.Click += new System.EventHandler(this.matlabDataAnalysis_Click);
             // 
-            // label6
+            // inputPowerLabel
             // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(438, 491);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(235, 20);
-            this.label6.TabIndex = 29;
-            this.label6.Text = "Number of Final Data Averages:";
-            // 
-            // number_avg
-            // 
-            this.number_avg.Location = new System.Drawing.Point(691, 491);
-            this.number_avg.Name = "number_avg";
-            this.number_avg.Size = new System.Drawing.Size(18, 20);
-            this.number_avg.TabIndex = 24;
-            this.number_avg.Text = "3";
+            this.inputPowerLabel.AutoSize = true;
+            this.inputPowerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.inputPowerLabel.Location = new System.Drawing.Point(285, 145);
+            this.inputPowerLabel.Name = "inputPowerLabel";
+            this.inputPowerLabel.Size = new System.Drawing.Size(14, 20);
+            this.inputPowerLabel.TabIndex = 24;
+            this.inputPowerLabel.Text = "-";
             // 
             // Without_Calibration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(857, 590);
-            this.Controls.Add(this.number_avg);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.matlabDataAnalysis);
             this.Controls.Add(this.Status);
             this.Controls.Add(this.dataCountTotal);
@@ -635,7 +602,6 @@
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox TubeNumber;
-        private System.Windows.Forms.TextBox InputPower;
         private System.Windows.Forms.TextBox ExpDate;
         private System.Windows.Forms.TextBox ExpLastName;
         private System.Windows.Forms.TextBox AvgFactor;
@@ -650,7 +616,6 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label pressure_txt;
-        private System.Windows.Forms.CheckBox DwnldRawData;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label14;
@@ -681,7 +646,6 @@
         private System.Windows.Forms.Label dataCountTotal;
         private System.Windows.Forms.Label Status;
         private System.Windows.Forms.Button matlabDataAnalysis;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox number_avg;
+        private System.Windows.Forms.Label inputPowerLabel;
     }
 }

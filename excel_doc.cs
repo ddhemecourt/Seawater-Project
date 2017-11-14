@@ -49,7 +49,7 @@ namespace Seawater_Measurement
         public void createAnalysisDoc(int section_count,int sample_count)
         {
             app1 = new Excel.Application();
-            app1.Visible = true;
+            app1.Visible = false;
             workbook1 = app1.Workbooks.Add(1);
             workbook1.Sheets.Add(Count: 1);
 

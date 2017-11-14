@@ -82,7 +82,7 @@ namespace Seawater_Measurement
 
             excel_doc doc = new excel_doc();
 
-           // IsFileinUse(file);
+
 
             Excel.Application excel = new Excel.Application();
             Excel.Workbooks books = excel.Workbooks;
@@ -92,7 +92,7 @@ namespace Seawater_Measurement
             var matlab = (MLApp.MLApp)Activator.CreateInstance(activationContext);
 
             string path = resultPath.Text;
-            //string excel_file = pathname.Text + filename.Text + ".xlsx";
+
 
             j = 1;
             while (wb.Sheets["Unloaded Q"].Cells[j, 2].Value2 != null)
@@ -111,10 +111,9 @@ namespace Seawater_Measurement
             Console.WriteLine("range = " + range);
 
             string excel_file = file;
-            //string range = "B1:B45";
             double num_avg = Convert.ToDouble(numberOfAvg.Value);
 
-
+            //Bring file path to the location of the MATLAB script
             matlab.Execute(@path);
             matlab.PutWorkspaceData("file", "base", excel_file);
             matlab.PutWorkspaceData("range", "base", range);
@@ -132,6 +131,8 @@ namespace Seawater_Measurement
             object sections = getMLData(matlab)[4];
             int sectionNum = Convert.ToInt16(sections);
 
+
+            //Creat the new excel result document
             doc.createAnalysisDoc(sectionNum, Convert.ToInt16(num_avg));
             doc.workbook1.SaveAs(resultPath.Text + resultFileName.Text);
 
@@ -154,7 +155,7 @@ namespace Seawater_Measurement
 
 
 
-
+            //Obtain the workspace data returned from the MATLAB Script and fill the new excel file with that data
             object indices = getMLData(matlab)[5];
             IEnumerable enumerable = indices as IEnumerable;
 
@@ -235,17 +236,16 @@ namespace Seawater_Measurement
 
 
 
-                    //ws = wb.Sheets["SVD Center Frequency"];
-                    //value = Convert.ToString(ws.Cells[element, 2].Value2);
-                    //doc.addData(level + 10 + sample_count + v, 7, value, "analysis");
-                    //resFreqSVDAvg.Add(Convert.ToDouble(value));
+                    ws = wb.Sheets["SVD Center Frequency"];
+                    value = Convert.ToString(ws.Cells[element, 2].Value2);
+                    doc.addData(level + 10 + sample_count + v, 7, value, "analysis");
+                    resFreqSVDAvg.Add(Convert.ToDouble(value));
 
-                    //charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-                    //chart = (Excel.ChartObject)charObjects.Item(1);
-                    //myChart = chart.Chart;
-                    ////series = myChart.SeriesCollection(1);
-                    //series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
-                    //series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
+                    charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
+                    chart = (Excel.ChartObject)charObjects.Item(1);
+                    myChart = chart.Chart;
+                    series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbRed;
+                    series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbRed;
 
 
 
@@ -309,12 +309,12 @@ namespace Seawater_Measurement
                         doc.addData(level + 11 + (2 * sample_count), 6, Convert.ToString(Convert.ToString(sd)), "analysis");
                         resFreqNAAvg.Clear();
 
-                        //avg = resFreqSVDAvg.Sum() / num_avg;
-                        //sd = resFreqSVDAvg.Select(x => (x - avg) * (x - avg)).Sum();
-                        //sd = Math.Sqrt(sd / resFreqSVDAvg.Count);
-                        //doc.addData(level + 10 + (2 * sample_count), 7, Convert.ToString(Convert.ToString(avg)), "analysis");
-                        //doc.addData(level + 11 + (2 * sample_count), 7, Convert.ToString(Convert.ToString(sd)), "analysis");
-                        //resFreqSVDAvg.Clear();
+                        avg = resFreqSVDAvg.Sum() / num_avg;
+                        sd = resFreqSVDAvg.Select(x => (x - avg) * (x - avg)).Sum();
+                        sd = Math.Sqrt(sd / resFreqSVDAvg.Count);
+                        doc.addData(level + 10 + (2 * sample_count), 7, Convert.ToString(Convert.ToString(avg)), "analysis");
+                        doc.addData(level + 11 + (2 * sample_count), 7, Convert.ToString(Convert.ToString(sd)), "analysis");
+                        resFreqSVDAvg.Clear();
 
                         avg = roomTAvg.Sum() / num_avg;
                         sd = roomTAvg.Select(x => (x - avg) * (x - avg)).Sum();
@@ -426,18 +426,17 @@ namespace Seawater_Measurement
                     series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
 
 
-                    //UNCOMMENT THIS WHEN WE HAVE THIS SHEET*******
-                    //ws = wb.Sheets["SVD Center Frequency"];
-                    //value = Convert.ToString(ws.Cells[element, 2].Value2);
-                    //doc.addData(level + 5 + v, 7, value, "analysis");
-                    //resFreqSVDAvg.Add(Convert.ToDouble(value));
+                    ws = wb.Sheets["SVD Center Frequency"];
+                    value = Convert.ToString(ws.Cells[element, 2].Value2);
+                    doc.addData(level + 5 + v, 7, value, "analysis");
+                    resFreqSVDAvg.Add(Convert.ToDouble(value));
 
-                    //charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
-                    //chart = (Excel.ChartObject)charObjects.Item(1);
-                    //myChart = chart.Chart;
-                    //series = myChart.SeriesCollection(1);
-                    //series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
-                    //series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
+                    charObjects = (Excel.ChartObjects)ws.ChartObjects(Type.Missing);
+                    chart = (Excel.ChartObject)charObjects.Item(1);
+                    myChart = chart.Chart;
+                    series = myChart.SeriesCollection(1);
+                    series.Points(element).MarkerForeGroundColor = (int)Excel.XlRgbColor.rgbGreen;
+                    series.Points(element).MarkerBackGroundColor = (int)Excel.XlRgbColor.rgbGreen;
 
 
                     ws = wb.Sheets["Room Temp."];
@@ -499,12 +498,12 @@ namespace Seawater_Measurement
                         doc.addData(level + 6 + sample_count, 6, Convert.ToString(Convert.ToString(sd)), "analysis");
                         resFreqNAAvg.Clear();
 
-                        //avg = resFreqSVDAvg.Sum() / num_avg;
-                        //sd = resFreqSVDAvg.Select(x => (x - avg) * (x - avg)).Sum();
-                        //sd = Math.Sqrt(sd / resFreqSVDAvg.Count);
-                        //doc.addData(level + 5 + sample_count, 7, Convert.ToString(Convert.ToString(avg)), "analysis");
-                        //doc.addData(level + 6 + sample_count, 7, Convert.ToString(Convert.ToString(sd)), "analysis");
-                        //resFreqSVDAvg.Clear();
+                        avg = resFreqSVDAvg.Sum() / num_avg;
+                        sd = resFreqSVDAvg.Select(x => (x - avg) * (x - avg)).Sum();
+                        sd = Math.Sqrt(sd / resFreqSVDAvg.Count);
+                        doc.addData(level + 5 + sample_count, 7, Convert.ToString(Convert.ToString(avg)), "analysis");
+                        doc.addData(level + 6 + sample_count, 7, Convert.ToString(Convert.ToString(sd)), "analysis");
+                        resFreqSVDAvg.Clear();
 
                         avg = roomTAvg.Sum() / num_avg;
                         sd = roomTAvg.Select(x => (x - avg) * (x - avg)).Sum();
@@ -569,32 +568,5 @@ namespace Seawater_Measurement
 
         }
 
-
-        //protected virtual bool IsFileinUse(FileInfo file)
-        //{
-        //    FileStream stream = null;
-
-        //    try
-        //    {
-        //        stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-        //    }
-        //    catch (IOException)
-        //    {
-        //        //the file is unavailable because it is:
-        //        //still being written to
-        //        //or being processed by another thread
-        //        //or does not exist (has already been processed)
-        //        return true;
-        //    }
-        //    finally
-        //    {
-        //        if (stream != null)
-        //            stream.Close();
-        //    }
-
-        //    return false;
-
-
-        //}
     }
-    }
+}

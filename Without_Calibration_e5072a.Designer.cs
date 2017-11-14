@@ -604,9 +604,9 @@
             this.pathname.Name = "pathname";
             this.pathname.Size = new System.Drawing.Size(313, 26);
             this.pathname.TabIndex = 8;
-            this.pathname.Text = "C:\\Users\\ddhemecourt\\Desktop\\Seawater_Files\\";
+            this.pathname.Text = "C:\\Users\\admin\\Desktop\\Seawater_Files\\";
             // 
-            // Without_Calibration
+            // Without_Calibration_e5072a
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -620,7 +620,7 @@
             this.Controls.Add(this.label10);
             this.Controls.Add(this.ExecuteMeasurment);
             this.Controls.Add(this.groupBox1);
-            this.Name = "Without_Calibration";
+            this.Name = "Without_Calibration_e5072a";
             this.Text = "Without_Calibration";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
